@@ -1,21 +1,31 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import duckduckgo
 import sys
 import getopt
 
+filters = ["duckduckgo.com"] #filter search engine results
 
 def usage():
-	print >>sys.stderr, 'Usage: ddg [options] <keywords>'
-	print >>sys.stderr, '    -n N    return N search results'
+	print ('Usage: ddg [options] <keywords>', file=sys.stderr)
+	print ('    -n N    return N search results', file=sys.stderr)
 
+def isLinkInHistory(linkHistory, url):
+    for element in filters:
+        if element in url:
+            return True
+    if not url in linkHistory:
+        linkHistory.append(url)
+        return False
+    else:
+        return True
 
 def main():
 	max_results = 0
 
 	try:
 		optlist, args = getopt.getopt(sys.argv[1:], 'n:')
-	except getopt.GetoptError, err:
-		print >>sys.stderr, str(err)
+	except getopt.GetoptError as err:
+		print (str(err), file=sys.stderr)
 		sys.exit(2)
 
 	for o, a in optlist:
@@ -28,8 +38,11 @@ def main():
 
 	keywords = args
 
+	linkHistory = []
 	for result in duckduckgo.search(keywords, max_results=max_results):
-		print result
+		#remove unwanted links
+		if not isLinkInHistory(linkHistory, result):
+			print(result)
 	
 	
 
